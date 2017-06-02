@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<!-- proxool -->
+	<bean id="dataSource"
+    	class="org.logicalcobwebs.proxool.ProxoolDataSource">
+    	<property name="driver">
+        	<value>oracle.jdbc.driver.OracleDriver</value>
+   		</property>
+    	<property name="driverUrl">
+        	<value>jdbc:oracle:thin:@127.0.0.1:1521:orcl</value>
+    	</property>
+    	<property name="user" value="" />   
+    	<property name="password" value="" /> 
+    	<property name="alias" value="proxoolDBPool" />
+    	<property name="houseKeepingSleepTime" value="10000" />
+    	<property name="houseKeepingTestSql" value="select user()" />
+    	<property name="maximumConnectionCount" value="20" />
+    	<property name="minimumConnectionCount" value="2" />
+    	<property name="simultaneousBuildThrottle" value="20"></property> 
+    	<property name="maximumConnectionLifetime" value="3600000" />
+    	<property name="maximumActiveTime" value="3600000" />    	
+	</bean>
+	
+	<bean id="sessionFactory_hibernate4"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" destroy-method="destroy">
+        <property name="dataSource" ref="dataSource" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.Oracle9iDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.current_session_context_class">
+                	org.springframework.orm.hibernate4.SpringSessionContext
+                </prop>
+            </props>
+        </property>
+        <property name="mappingResources">
+            <list>
+
+            </list>
+        </property>  
+    </bean>
+    
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory_hibernate4"></ref>
+		</property>
+	</bean>
+    
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+</beans>
